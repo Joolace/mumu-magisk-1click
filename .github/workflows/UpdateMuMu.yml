@@ -1,4 +1,4 @@
-name: Download File and Commit
+name: Update MuMu Installer
 
 on:
   workflow_dispatch: # Manually trigger the workflow
