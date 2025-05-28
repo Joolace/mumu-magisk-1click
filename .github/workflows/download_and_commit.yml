@@ -1,0 +1,26 @@
+name: Download File and Commit
+
+on:
+  workflow_dispatch: # Manually trigger the workflow
+
+jobs:
+  download_and_commit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download file
+      run: curl -O -L -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" -e "https://adl.netease.com/d/g/a11/c/gw_win?dfuid=elk_f3ELNLH&nonce=kQYLG4" "https://mumu.nie.netease.com/api/v1/release/downloader/NEMUX?channel=gw-win&dfuid=elk_f3ELNLH"
+
+    - name: Rename downloaded file
+      run: mv *NEMUX* MuMuInstaller.exe
+
+    - name: Commit downloaded file
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add .
+        git commit -m "Add downloaded file" || echo "No changes to commit" # Avoid failing if no changes
+        git push || echo "No changes to push or push failed, check logs" # Avoid failing if nothing to push 
