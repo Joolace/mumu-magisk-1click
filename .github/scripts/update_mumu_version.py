@@ -1,7 +1,8 @@
 import re
 import requests
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup # No longer needed for parsing/XPath
 import datetime
+import lxml.html # Import lxml for XPath
 
 # --- Configuration ---
 README_PATH = "README.md"
@@ -18,17 +19,18 @@ DATE_END_MARKER = "<!-- MUMU_UPDATE_DATE_END -->"
 COMPATIBLE_VERSION_START_MARKER = "<!-- MUMU_COMPATIBLE_VERSION_START -->"
 COMPATIBLE_VERSION_END_MARKER = "<!-- MUMU_COMPATIBLE_VERSION_END -->"
 
-# --- Regular Expressions to find version and date ---
-# Regex patterns to find the version and date.
-# Added Chinese character equivalents for broader matching.
-VERSION_PATTERNS = [
-    re.compile(r"(?:Current version|当前版本)[:：\s]*V\s*([\d.]+)", re.IGNORECASE),
-    re.compile(r"V\s*([\d.]+)", re.IGNORECASE) # More generic version pattern
-]
+# --- Regular Expressions for parsing extracted text ---
+# Refined regex to extract version number (e.g., V 4.1.29 -> 4.1.29) from the found element text
+VERSION_TEXT_PATTERN = re.compile(r"V\s*([\d.]+)", re.IGNORECASE)
+
+# Existing patterns for date scraping (as no specific date XPath/selector provided)
 DATE_PATTERNS = [
     re.compile(r"(?:Last updated|最后更新)[:：\s]*(\d{4}-\d{2}-\d{2})", re.IGNORECASE),
     re.compile(r"(\d{4}-\d{2}-\d{2})") # More generic date pattern
 ]
+
+# --- XPath for version element ---
+VERSION_XPATH = "/html/body/div[2]/div/section/div[1]/a/div[2]/div[2]/div[4]/font/font"
 
 def fetch_page_content(url):
     """Fetches content from the given URL."""
@@ -42,60 +44,55 @@ def fetch_page_content(url):
         return None
 
 def parse_content(html_content):
-    """Parses HTML to find version and date using BeautifulSoup and regex."""
+    """Parses HTML to find version and date using XPath and regex."""
     if not html_content:
         return None, None
 
-    soup = BeautifulSoup(html_content, 'html.parser')
-    text_content = soup.get_text(separator='\\n') # Get all text, preserving line breaks for context
+    # Use lxml to parse HTML
+    try:
+        tree = lxml.html.fromstring(html_content)
+    except Exception as e:
+        print(f"Error parsing HTML with lxml: {e}")
+        return None, None
 
     found_version = None
     found_date = None
 
-    # Search for version
-    for pattern in VERSION_PATTERNS:
-        match = pattern.search(text_content)
-        if match:
-            found_version = "V" + match.group(1) # Ensure 'V' prefix
-            print(f"Found version: {found_version} using pattern: {pattern.pattern}")
-            break
+    # --- Search for version using XPath ---
+    print(f"Attempting to find version using XPath: {VERSION_XPATH}")
+    version_elements = tree.xpath(VERSION_XPATH)
+    
+    if version_elements:
+        # XPath can return a list; we expect only one element for this specific path
+        version_element = version_elements[0]
+        element_text = version_element.text_content().strip()
+        print(f"Found potential version text using XPath: '{element_text}'")
+        
+        # Use regex to extract the version number from the text
+        version_match = VERSION_TEXT_PATTERN.search(element_text)
+        if version_match:
+            found_version = "V" + version_match.group(1) # Ensure 'V' prefix
+            print(f"Extracted version: {found_version}")
         else:
-            # Try finding within <font> tags specifically if primary patterns fail
-            font_tags = soup.find_all('font')
-            for tag in font_tags:
-                tag_text = tag.get_text()
-                match = pattern.search(tag_text)
-                if match:
-                    found_version = "V" + match.group(1)
-                    print(f"Found version in <font>: {found_version} using pattern: {pattern.pattern}")
-                    break
-            if found_version:
-                break
+            print(f"Could not extract version number from text: '{element_text}'")
+    else:
+        print(f"Version element not found using XPath: {VERSION_XPATH}")
 
-    # Search for date
+    # --- Search for date using existing patterns (no specific selector/XPath provided) ---
+    # Convert lxml tree back to string to use existing date patterns that search text content
+    text_content = lxml.html.tostring(tree, encoding='unicode', method='text')
+
     for pattern in DATE_PATTERNS:
         match = pattern.search(text_content)
         if match:
             found_date = match.group(1)
             print(f"Found date: {found_date} using pattern: {pattern.pattern}")
             break
-        else:
-            # Try finding within <font> tags specifically
-            font_tags = soup.find_all('font')
-            for tag in font_tags:
-                tag_text = tag.get_text()
-                match = pattern.search(tag_text)
-                if match:
-                    found_date = match.group(1)
-                    print(f"Found date in <font>: {found_date} using pattern: {pattern.pattern}")
-                    break
-            if found_date:
-                break
-                
+
     if not found_version:
-        print("Version string not found.")
+        print("Version string not found using XPath or text patterns.")
     if not found_date:
-        print("Update date string not found.")
+        print("Update date string not found using text patterns.")
 
     return found_version, found_date
 
@@ -114,7 +111,7 @@ def update_readme(readme_path, version_str, date_str):
     if version_str:
         version_regex = re.compile(f"({re.escape(VERSION_START_MARKER)})(.*?)({re.escape(VERSION_END_MARKER)})", re.DOTALL)
         content = version_regex.sub(f"\\1 {version_str} \\3", content)
-        print(f"Attempting to update version to: {version_str}")
+        print(f"Attempting to update main version to: {version_str}")
 
     # Update compatible version line
     if version_str:
@@ -162,18 +159,20 @@ if __name__ == "__main__":
             else:
                 print("README update process completed (no changes or failed to write).")
         else:
-            print("Could not find version or date in the webpage. README not updated.")
-            # Update with current date even if version isn't found, to show the script ran
+            print("Could not find version or date in the webpage. README not updated based on scrape results.")
+            # Update with current date even if version/date isn't found, to show the script ran
             print(f"Attempting to update {README_PATH} with current date as fallback...")
-            if update_readme(README_PATH, None, None): # Pass None for version, script handles current date
-                 print("README update process completed with current date (changes made).")
+            # Call update_readme with None for version, it will still update the date
+            if update_readme(README_PATH, None, None): 
+                 print("README update process completed with current date fallback (changes made).")
             else:
-                print("README update process completed with current date (no changes or failed to write).")
+                print("README update process completed with current date fallback (no changes or failed to write).")
     else:
         print("Failed to fetch webpage content. README not updated.")
         # Update with current date even if page fetch fails
         print(f"Attempting to update {README_PATH} with current date as fallback...")
-        if update_readme(README_PATH, None, None): # Pass None for version, script handles current date
-            print("README update process completed with current date (changes made).")
+        # Call update_readme with None for version, it will still update the date
+        if update_readme(README_PATH, None, None): 
+            print("README update process completed with current date fallback (changes made).")
         else:
-            print("README update process completed with current date (no changes or failed to write).") 
+            print("README update process completed with current date fallback (no changes or failed to write).") 
