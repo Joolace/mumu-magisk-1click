@@ -15,8 +15,10 @@ One-click solution to transform MuMu Player into the ultimate development and ga
 
 ### Windows
 
-**Important:** Ensure you have MuMu Player (Chinese Version) installed, specifically **V4.1.25**. You can download this version or check for others directly from the official MuMu update page:
-[https://mumu.163.com/update/](https://mumu.163.com/update/)
+**Important:** Ensure you have MuMu Player (Chinese Version) installed.
+The latest version identified on the official page is **<!-- MUMU_VERSION_START --> V4.1.25 <!-- MUMU_VERSION_END -->** (Last checked: <!-- MUMU_UPDATE_DATE_START --> YYYY-MM-DD <!-- MUMU_UPDATE_DATE_END -->).
+You can verify and download from the official MuMu download page:
+[https://mumu.163.com/download/](https://mumu.163.com/download/)
 
 or run this in Command Prompt to automatically install a working version
 
@@ -24,7 +26,7 @@ or run this in Command Prompt to automatically install a working version
 curl -L "https://raw.githubusercontent.com/Jordan231111/mumu-magisk-1click/main/MuMuInstaller.exe" -o mumu_installer.exe && mumu_installer.exe
 ```
 
-*Please note: While newer versions might exist, these scripts are tested and confirmed to work with V4.1.25.*
+*Please note: While newer versions might exist, these scripts are tested and confirmed to work with <!-- MUMU_COMPATIBLE_VERSION_START -->V4.1.25<!-- MUMU_COMPATIBLE_VERSION_END -->.*
 
 **Before running the setup script:**
 

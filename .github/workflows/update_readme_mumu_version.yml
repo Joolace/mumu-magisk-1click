@@ -1,0 +1,59 @@
+name: Update MuMu Version in README
+
+on:
+  workflow_dispatch: # Allow manual triggering
+  schedule:
+    - cron: '0 0 * * *' # Run daily at midnight UTC
+
+jobs:
+  update_readme:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Necessary to commit changes to the repo
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
+
+      - name: Run script to update README
+        id: run_script # Give an id to this step to check its output
+        run: python .github/scripts/update_mumu_version.py
+        continue-on-error: true # Allow workflow to continue to commit step even if script has non-zero exit
+
+      - name: Check script output for changes
+        id: check_changes
+        run: |
+          echo "Checking for README changes..."
+          # Check if the script output indicates changes were made
+          # This assumes your python script prints a specific message or sets an output
+          # For simplicity, we'll rely on git status for now, but script output check is more robust.
+          # The python script now returns an exit code or prints distinctive messages.
+          # We will rely on the commit step's condition for now based on git status.
+          # If the script itself determined no changes, it wouldn't modify the file,
+          # thus `git status` would be clean.
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          # Check if there are any changes to commit
+          if ! git diff --quiet README.md; then
+            echo "README.md has changed. Committing and pushing..."
+            git add README.md
+            git commit -m ":robot: Auto-update MuMu Player version in README"
+            git push
+          else
+            echo "No changes to README.md detected by git diff. Nothing to commit."
+          fi 
