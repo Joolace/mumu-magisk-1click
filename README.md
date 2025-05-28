@@ -16,7 +16,7 @@ One-click solution to transform MuMu Player into the ultimate development and ga
 ### Windows
 
 **Important:** Ensure you have MuMu Player (Chinese Version) installed.
-The latest version identified on the official page is **<!-- MUMU_VERSION_START --> V4.1.25 <!-- MUMU_VERSION_END -->** (Last checked: <!-- MUMU_UPDATE_DATE_START --> YYYY-MM-DD <!-- MUMU_UPDATE_DATE_END -->).
+The latest version identified on the official page is **<!-- MUMU_VERSION_START --> V4.1.25 <!-- MUMU_VERSION_END -->** (Last checked: <!-- MUMU_UPDATE_DATE_START --> 2025-05-28 <!-- MUMU_UPDATE_DATE_END -->).
 You can verify and download from the official MuMu download page:
 [https://mumu.163.com/download/](https://mumu.163.com/download/)
 
