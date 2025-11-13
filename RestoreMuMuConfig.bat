@@ -37,6 +37,16 @@ for %%d in (C D E F G H I J K L M N O P Q R S T U V W X Y Z) do (
         echo Found MuMu at: !vms_path!
         goto :process_vms
     )
+    if exist "%%d:\Program Files\Netease\MuMu Player 12\vms" (
+        set "vms_path=%%d:\Program Files\Netease\MuMu Player 12\vms"
+        echo Found MuMu at: !vms_path!
+        goto :process_vms
+    )
+    if exist "%%d:\Program Files\Netease\MuMu\vms" (
+        set "vms_path=%%d:\Program Files\Netease\MuMu\vms"
+        echo Found MuMu at: !vms_path!
+        goto :process_vms
+    )
 )
 
 if not defined vms_path (
@@ -64,6 +74,7 @@ for /d %%f in ("!vms_path!\*") do (
 )
 
 echo Done
+pause
 
 :end
-endlocal 
+endlocal
