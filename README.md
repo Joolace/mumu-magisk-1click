@@ -23,7 +23,7 @@ You can verify and download from the official MuMu download page:
 or run this in Command Prompt to automatically install a working version
 
 ```cmd
-curl -L "https://raw.githubusercontent.com/Jordan231111/mumu-magisk-1click/main/MuMuInstaller.exe" -o mumu_installer.exe && mumu_installer.exe
+curl -L "https://raw.githubusercontent.com/Joolace/mumu-magisk-1click/main/MuMuInstaller.exe" -o mumu_installer.exe && mumu_installer.exe
 ```
 
 *Please note: While newer versions might exist, these scripts are tested and confirmed to work with <!-- MUMU_COMPATIBLE_VERSION_START -->V4.1.29<!-- MUMU_COMPATIBLE_VERSION_END -->.*
@@ -39,7 +39,7 @@ curl -L "https://raw.githubusercontent.com/Jordan231111/mumu-magisk-1click/main/
 Once MuMu Player and Kitsune Magisk are installed **and your instances have been launched and then closed**, run the setup script as administrator in Command Prompt:
 
 ```cmd
-curl -s https://raw.githubusercontent.com/Jordan231111/mumu-magisk-1click/main/Setup.bat -o setup.bat && setup.bat
+curl -s https://raw.githubusercontent.com/Joolace/mumu-magisk-1click/main/Setup.bat -o setup.bat && setup.bat
 ```
 
 ## 🎥 Video Tutorials
@@ -102,7 +102,7 @@ These tools are provided for convenience. You also need to install them manually
 If you need to revert changes, simply run:
 
 ```cmd
-curl -s https://raw.githubusercontent.com/Jordan231111/mumu-magisk-1click/main/RestoreMuMuConfig.bat -o restore.bat && restore.bat
+curl -s https://raw.githubusercontent.com/Jordan231111/Joolace/main/RestoreMuMuConfig.bat -o restore.bat && restore.bat
 ```
 
 ## 📋 Requirements
